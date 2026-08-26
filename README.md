@@ -1,4 +1,4 @@
-# 📱 n8n Nodes WhatsApp Baileys (Standalone & Local)
+# 📱 WhatsApp Bot para n8n con Baileys
 
 <p align="center">
   <img src="https://img.shields.io/badge/WhatsApp-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" alt="WhatsApp" />
@@ -8,211 +8,309 @@
   <img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="License" />
 </p>
 
+Un puente entre WhatsApp y [n8n](https://n8n.io/) que te permite recibir mensajes, responder automáticamente y armar bots desde tus flujos de n8n. Usa la librería [Baileys](https://baileys.wiki/) para conectarse a WhatsApp Web sin depender de la API oficial de Meta ni pagar por conversación.
+
+Viene con 3 bots de ejemplo listos para importar, un panel web para vincular tu cuenta con código QR y un gestor de tareas (TODO) funcional desde el chat.
+
 > [!WARNING]
-> ### ⚠️ AVISO LEGAL Y DESCARGO DE RESPONSABILIDAD (USO RESPONSABLE)
-> - **Uso Educativo y Pruebas**: Este proyecto utiliza la librería de código abierto `@whiskeysockets/baileys` (protocolo multi-dispositivo de WhatsApp Web). Está diseñado **exclusivamente con fines de aprendizaje, investigación, prototipado y automatización personal**.
-> - **Riesgo de Suspensión de Cuenta (Baneo)**: El uso de automatizaciones no oficiales, envío masivo o spam infringe los Términos de Servicio de WhatsApp y puede resultar en el bloqueo temporal o definitivo de tu línea. Úsalo bajo tu propia responsabilidad.
-> - **Solución Oficial para Empresas**: Para entornos de producción comercial, clientes reales o mensajería masiva, debes utilizar la **API Oficial de Meta (WhatsApp Cloud API)**.
+> **Antes de usar, leé esto:**
+> - Este proyecto es para **aprender, experimentar y automatizar cosas personales**. Baileys no es una herramienta oficial de WhatsApp.
+> - Si usás automatizaciones para enviar spam o mensajes masivos, **WhatsApp puede bloquear tu número** temporal o permanentemente.
+> - Para uso comercial serio con clientes reales, usá la [API Oficial de Meta (WhatsApp Cloud API)](https://developers.facebook.com/docs/whatsapp/cloud-api/).
 
 ---
 
-## 📑 Tabla de Contenidos
+## Tabla de Contenidos
 
-1. [Lanzador de 1 Clic para Windows](#-lanzador-de-1-clic-para-windows)
-2. [Estructura del Proyecto](#-estructura-del-proyecto)
-3. [Arquitectura del Sistema](#-arquitectura-del-sistema)
-4. [¿Cómo Conectar con n8n? (Local, Docker o Cloud)](#-cómo-conectar-con-n8n-local-docker-o-cloud)
-5. [Identificación Dinámica de Números y Remitentes](#-identificación-dinámica-de-números-y-remitentes)
-6. [Características Principales](#-características-principales)
-7. [Panel de Control Web (Hub)](#-panel-de-control-web-hub)
-8. [Plantillas de Automatización Listas para Usar](#-plantillas-de-automatización-listas-para-usar)
-9. [Flexibilidad del CRUD: De Local a Bases de Datos](#-flexibilidad-del-crud-de-local-a-bases-de-datos)
-10. [Referencia de la API REST (Bridge Server)](#-referencia-de-la-api-rest-bridge-server)
-11. [Licencia](#-licencia)
+1. [Requisitos previos](#requisitos-previos)
+2. [Instalación](#instalación)
+3. [Primer uso (guía rápida)](#primer-uso-guía-rápida)
+4. [Conectar con n8n](#conectar-con-n8n)
+5. [Los 3 bots de ejemplo](#los-3-bots-de-ejemplo)
+6. [Cómo funciona por dentro](#cómo-funciona-por-dentro)
+7. [Referencia técnica](#referencia-técnica)
+8. [Problemas comunes](#problemas-comunes)
+9. [Licencia](#licencia)
 
 ---
 
-## 🖱️ Lanzador de 1 Clic para Windows
+## Requisitos previos
 
-Diseñado para que cualquier persona pueda encender y apagar el bot fácilmente:
+Antes de arrancar, asegurate de tener instalado:
 
-1. **Para encender el Bot**: Haz doble clic en **`INICIAR-BOT.bat`**.
-   - Inicia el servidor nativo en menos de 1 segundo.
-   - Abre automáticamente en tu navegador el **Panel de WhatsApp** (`http://localhost:3100/qr/page`).
-2. **Para apagar el Bot**: Haz doble clic en **`DETENER-BOT.bat`** (o cierra la ventana de la terminal).
-   - Libera los puertos y detiene cualquier proceso activo de inmediato.
+| Programa | Versión mínima | ¿Dónde lo descargo? |
+| :--- | :--- | :--- |
+| **Node.js** | v18 o superior | [nodejs.org](https://nodejs.org/) |
+| **n8n** | Cualquier versión reciente | Ver opciones abajo |
+
+### ¿Cómo instalar n8n?
+
+Hay 3 formas, elegí la que más te convenga:
+
+- **Con Docker Desktop** (la más común): Seguí la [guía oficial de n8n con Docker](https://docs.n8n.io/hosting/installation/docker/).
+- **Directo con Node.js**: Ejecutá `npx n8n` en tu terminal y listo, se abre en `http://localhost:5678`.
+- **n8n Cloud**: Creá una cuenta en [n8n.io/cloud](https://n8n.io/cloud/) y usalo desde el navegador.
 
 ---
 
-## 📁 Estructura del Proyecto
+## Instalación
 
-El repositorio está organizado de forma modular, separando el servidor de conexión de WhatsApp de los flujos y nodos de n8n:
+### En Windows (1 solo clic)
 
+1. Descargá o cloná el repositorio:
+   ```bash
+   git clone https://github.com/Malvadapapa/n8n-nodes-whatsapp-baileys.git
+   ```
+2. Abrí la carpeta y hacé doble clic en **`INICIAR-BOT.bat`**.  
+   El script instala las dependencias, compila el código y levanta el servidor automáticamente. Se va a abrir el Panel Web en tu navegador.
+
+### Manual (Windows, Linux o Mac)
+
+Si preferís hacerlo paso a paso desde la terminal:
+
+```bash
+git clone https://github.com/Malvadapapa/n8n-nodes-whatsapp-baileys.git
+cd n8n-nodes-whatsapp-baileys
+
+# Instalar dependencias del proyecto principal
+npm install
+
+# Instalar y compilar el servidor Bridge
+cd bridge
+npm install
+npm run build
+cd ..
+
+# Iniciar el servidor
+node bridge/dist/server.js
 ```
-n8n-nodes-whatsapp-baileys/
-├── INICIAR-BOT.bat              # Lanzador nativo en 1 solo clic para Windows
-├── DETENER-BOT.bat              # Detiene procesos huérfanos y libera el puerto 3100
-│
-├── bridge/                      # Servidor Gateway Express con Baileys
-│   ├── auth_info/               # Almacenamiento local persistente
-│   │   ├── tasks.json           # Base de datos local de tareas (CRUD)
-│   │   └── webhooks_config.json # Registro de URLs de Webhook de n8n
-│   ├── src/                     # Código fuente en TypeScript
-│   │   ├── baileys-manager.ts   # Conexión WhatsApp, filtros anti-loop y parseo de datos
-│   │   ├── server.ts            # Servidor HTTP Express y middleware
-│   │   └── routes/              # Endpoints: QR Hub, Envíos, Tareas y Webhooks
-│   ├── package.json             # Dependencias del servidor Bridge
-│   └── tsconfig.json            # Configuración de compilación TypeScript
-│
-├── nodes/                       # Nodos nativos comunitarios para n8n
-│   ├── WhatsAppBaileys/         # Nodo de acción para enviar mensajes, imágenes y archivos
-│   └── WhatsAppBaileysTrigger/  # Nodo Trigger para recibir eventos de WhatsApp
-│
-├── credentials/                 # Credenciales de autenticación para n8n
-│   └── WhatsAppBaileysApi.credentials.ts
-│
-├── workflow-menu-bot.json       # Flujo n8n: Menú interactivo con 4 opciones + CRUD
-├── workflow-eco-bot.json        # Flujo n8n: Bot espejo para pruebas privadas ("Tú")
-├── workflow-whatsapp-bot.json   # Flujo n8n: Auto-respuesta con datos del cliente
-├── package.json                 # Configuración del paquete principal
-└── README.md                    # Documentación completa del proyecto
-```
+
+El servidor arranca en `http://localhost:3100` y el Panel Web queda en `http://localhost:3100/qr/page`.
+
+Para detener el servidor: cerrá la terminal, o en Windows hacé doble clic en **`DETENER-BOT.bat`**.
 
 ---
 
-## 🏗️ Arquitectura del Sistema
+## Primer uso (guía rápida)
+
+Una vez que el servidor está corriendo:
+
+**Paso 1 — Vincular tu WhatsApp:**
+- Abrí `http://localhost:3100/qr/page` en tu navegador.
+- Escaneá el código QR desde WhatsApp en tu teléfono (Ajustes → Dispositivos vinculados → Vincular dispositivo).
+- Cuando se conecte, vas a ver tu nombre y número en el panel.
+
+**Paso 2 — Configurar el webhook de n8n:**
+- En el mismo panel, abajo del QR, hay un campo que dice *"Webhook Destino (n8n)"*.
+- Pegá la URL de tu n8n. Si tenés n8n corriendo en tu misma computadora:  
+  `http://localhost:5678/webhook/whatsapp-trigger`
+- Hacé clic en **Guardar**.
+
+**Paso 3 — Importar un bot de ejemplo:**
+- Abrí tu editor de n8n (`http://localhost:5678`).
+- Andá a los tres puntitos (`...`) arriba → **Import from File**.
+- Seleccioná el archivo **`workflow-menu-bot.json`** de la carpeta del proyecto.
+- Hacé clic en **Publish** (el botón verde arriba a la derecha).
+
+**Paso 4 — Probarlo:**
+- Desde otro teléfono (o desde tu propio chat), mandá cualquier mensaje al número vinculado.
+- El bot debería responder con el menú de opciones. Respondé `1`, `2`, `3` o `4` para probar cada función.
+
+---
+
+## Conectar con n8n
+
+El servidor Bridge (puerto `3100`) y n8n (puerto `5678`) se comunican por HTTP. Dependiendo de cómo tengas instalado n8n, la configuración cambia un poco:
+
+### n8n en Docker Desktop
+
+Esta es la situación más común. Como n8n corre dentro de un contenedor aislado, no puede acceder a tu computadora usando `localhost` — necesita usar una dirección especial:
+
+| Qué configurar | Dónde | URL a usar |
+| :--- | :--- | :--- |
+| Webhook destino | Panel Web del bot | `http://localhost:5678/webhook/whatsapp-trigger` |
+| URL del Bridge (en los nodos HTTP de n8n) | Dentro de n8n | `http://host.docker.internal:3100/send/text` |
+
+> **¿Por qué `host.docker.internal`?** Porque n8n está dentro de un contenedor y necesita esa dirección para "salir" del contenedor y comunicarse con tu computadora donde corre el Bot. Los flujos de ejemplo ya vienen configurados con esta URL.
+
+### n8n directo con Node.js (`npx n8n`)
+
+Si n8n y el bot corren en la misma computadora sin contenedores, todo es `localhost`:
+
+| Qué configurar | URL a usar |
+| :--- | :--- |
+| Webhook destino | `http://localhost:5678/webhook/whatsapp-trigger` |
+| URL del Bridge (en n8n) | `http://localhost:3100/send/text` |
+
+### n8n en la nube (VPS o n8n Cloud)
+
+Si tu n8n está en un servidor remoto o en n8n Cloud:
+
+1. En el Panel Web, poné la URL pública de tu n8n:  
+   `https://tu-instancia.app.n8n.cloud/webhook/whatsapp-trigger`
+2. Para que n8n en la nube pueda mandarle mensajes a tu computadora, necesitás exponer el puerto 3100 con un túnel como [ngrok](https://ngrok.com/):
+   ```bash
+   ngrok http 3100
+   ```
+   Y usá la URL que ngrok te da (ej: `https://abc123.ngrok-free.app/send/text`) en los nodos HTTP de n8n.
+
+---
+
+## Los 3 bots de ejemplo
+
+El proyecto incluye 3 flujos de n8n listos para importar (**n8n → ... → Import from File**):
+
+### `workflow-menu-bot.json` — Menú interactivo con 4 opciones
+
+El bot más completo. Cuando alguien te escribe, le muestra un menú y responde según el número que elija:
+
+| El usuario escribe | Qué hace el bot |
+| :--- | :--- |
+| Cualquier texto (ej: "hola") | Muestra el menú con las 4 opciones |
+| `1` | Saluda al usuario por su nombre |
+| `2` | Consulta la cotización del Dólar Blue en vivo (API pública) |
+| `3` | Espera 10 segundos y responde (demostración del nodo Wait) |
+| `4` | Muestra su lista de tareas pendientes |
+| `4a Comprar café` | Agrega "Comprar café" a su lista |
+| `4b 1` | Marca la tarea #1 como completada |
+| `4c 1` | Elimina la tarea #1 |
+| `4d` | Borra todas las tareas |
+
+Las tareas se guardan por número de teléfono en un archivo local (`bridge/auth_info/tasks.json`). Esto es intencional: así cualquiera puede probar el CRUD sin necesidad de configurar una base de datos externa.
+
+> **Tip:** Si querés guardar las tareas en otro lado, podés reemplazar los nodos HTTP del flujo por los conectores nativos de n8n (Google Sheets, Notion, PostgreSQL, Supabase, etc.).
+
+### `workflow-eco-bot.json` — Bot espejo para pruebas
+
+Responde solo en tu chat privado ("Tú" / notas personales). Le mandás un mensaje y te devuelve el mismo texto con un prefijo `🤖 Eco:`. Útil para verificar que el bridge y n8n se están comunicando bien sin molestar a tus contactos.
+
+### `workflow-whatsapp-bot.json` — Auto-respuesta a cualquier contacto
+
+Le responde a cualquier persona que te escriba con un saludo personalizado que incluye su nombre y número. Sirve como punto de partida para armar un bot de atención al cliente.
+
+---
+
+## Cómo funciona por dentro
+
+El proyecto tiene dos piezas que trabajan juntas:
 
 ```
   ┌─────────────────┐             ┌─────────────────────────────┐             ┌─────────────────────┐
-  │                 │  WebSocket  │   WhatsApp Gateway (Local)  │  HTTP /     │         n8n         │
-  │  WhatsApp Web   │ ◄─────────► │      (Express + Baileys)    │  Webhooks   │ (Workflows & Logic) │
-  │   (Servidores)  │             │        [Puerto 3100]        │ ◄─────────► │    (Local o Cloud)  │
+  │                 │  WebSocket  │       Servidor Bridge       │  HTTP /     │         n8n         │
+  │  WhatsApp Web   │ ◄─────────► │      (Express + Baileys)    │  Webhooks   │    (tus flujos)     │
+  │   (servidores)  │             │      puerto 3100            │ ◄─────────► │    puerto 5678      │
   └─────────────────┘             └─────────────────────────────┘             └─────────────────────┘
                                                  │
                                                  ▼
                                      ┌───────────────────────┐
-                                     │   Panel Web de QR     │
-                                     │  (/qr/page en vivo)   │
+                                     │   Panel Web (/qr/page)│
                                      └───────────────────────┘
 ```
 
----
+**El Bridge** (carpeta `bridge/`) es un servidor Express que:
+- Se conecta a WhatsApp Web usando Baileys.
+- Recibe los mensajes entrantes, los parsea y se los reenvía a n8n por webhook.
+- Expone endpoints HTTP para que n8n le pueda pedir que envíe mensajes de vuelta.
+- Sirve el Panel Web para vincular la cuenta con QR y monitorear la actividad en vivo.
+- Ignora los mensajes del propio bot para evitar bucles y filtra duplicados.
+- Guarda la sesión de WhatsApp en `bridge/auth_info/` para no pedir el QR cada vez.
 
-## 🌐 ¿Cómo Conectar con n8n? (Local, Docker o Cloud)
+**n8n** recibe los mensajes del bridge por webhook y ejecuta la lógica que vos definas en tus flujos (responder, consultar APIs, guardar datos, etc.).
 
-El sistema es **100% dinámico y universal**: funciona con cualquier instalación de n8n.
+### Estructura de carpetas
 
-### 🔹 Opción A: Tienes n8n ejecutándose en Docker Desktop (Más habitual)
-1. En el Panel Web (`http://localhost:3100/qr/page`), pon como Webhook destino:  
-   `http://localhost:5678/webhook/whatsapp-trigger`
-2. En tus nodos de n8n para enviar mensajes (HTTP Request), la URL del servidor local es:  
-   `http://host.docker.internal:3100/send/text` *(Ya configurado por defecto en los flujos incluidos)*
-
-### 🔹 Opción B: Tienes n8n ejecutándose directo con Node.js (`npx n8n`)
-1. En el Panel Web (`http://localhost:3100/qr/page`), pon como Webhook destino:  
-   `http://localhost:5678/webhook/whatsapp-trigger`
-2. En tus nodos de n8n para enviar mensajes (HTTP Request), la URL es:  
-   `http://localhost:3100/send/text`
-
-### 🔹 Opción C: Tienes n8n en la Nube (VPS o n8n Cloud)
-1. En el Panel Web, pega la URL pública de tu n8n en la nube:  
-   `https://tu-instancia.app.n8n.cloud/webhook/whatsapp-trigger`
-2. Para que tu n8n en la nube le envíe mensajes a tu computadora local, puedes abrir un túnel seguro gratuito con ngrok (`ngrok http 3100`) y usar la URL pública en n8n:  
-   `https://tu-subdominio.ngrok-free.app/send/text`
-
----
-
-## 👤 Identificación Dinámica de Números y Remitentes
-
-Cada vez que entra un mensaje a tu n8n a través del Webhook, el sistema envía un objeto JSON enriquecido con **todos los datos del remitente ya procesados e identificados dinámicamente**, sin que tengas que parsear textos ni tocar código:
-
-| Campo en n8n | Tipo | Ejemplo | Descripción |
-| :--- | :--- | :--- | :--- |
-| `{{ $json.body.senderNumber }}` | `String` | `"5491122334455"` | **Número limpio** (solo dígitos, sin símbolos). |
-| `{{ $json.body.senderFormatted }}` | `String` | `"+5491122334455"` | **Número internacional formateado** con signo `+`. |
-| `{{ $json.body.fromName }}` | `String` | `"Juan Pérez"` | **Nombre visible** del contacto en WhatsApp. |
-| `{{ $json.body.from }}` | `String` | `"5491122334455@s.whatsapp.net"` | **Dirección JID** lista para usar en el campo `to:` de respuesta. |
-| `{{ $json.body.isSelfChat }}` | `Boolean` | `true` / `false` | `true` si es tu propio chat personal ("Tú" / Notas), `false` si es otra persona. |
-| `{{ $json.body.isGroup }}` | `Boolean` | `true` / `false` | `true` si el mensaje proviene de un grupo de WhatsApp. |
-| `{{ $json.body.body }}` | `String` | `"Hola, quisiera consultar el menú"` | **Texto o descripción** del mensaje recibido. |
-| `{{ $json.body.type }}` | `String` | `"text"`, `"image"`, `"audio"` | Tipo de contenido del mensaje. |
-
-### 💡 Ejemplo de Expresión en n8n:
-```javascript
-"¡Hola " + $json.body.fromName + " (" + $json.body.senderFormatted + ")! Recibí tu mensaje: " + $json.body.body
+```
+n8n-nodes-whatsapp-baileys/
+├── INICIAR-BOT.bat                # Arranca todo en Windows con doble clic
+├── DETENER-BOT.bat                # Detiene el servidor y libera el puerto
+│
+├── bridge/                        # El servidor que conecta con WhatsApp
+│   ├── src/                       # Código fuente TypeScript
+│   │   ├── baileys-manager.ts     # Conexión WhatsApp, parseo y filtros
+│   │   ├── server.ts              # Servidor Express + rutas
+│   │   └── routes/                # Endpoints (QR, envíos, tareas, webhooks)
+│   ├── auth_info/                 # Sesión de WhatsApp y datos locales
+│   │   ├── webhooks_config.json   # URL del webhook de n8n
+│   │   └── tasks.json             # Tareas del CRUD (se crea automáticamente)
+│   └── package.json
+│
+├── nodes/                         # Nodos comunitarios para n8n (opcionales)
+│   ├── WhatsAppBaileys/           # Nodo para enviar mensajes desde n8n
+│   └── WhatsAppBaileysTrigger/    # Nodo trigger para recibir mensajes
+│
+├── credentials/                   # Credenciales para los nodos de n8n
+│
+├── workflow-menu-bot.json         # Bot con menú de 4 opciones + CRUD
+├── workflow-eco-bot.json          # Bot espejo para pruebas
+├── workflow-whatsapp-bot.json     # Bot de auto-respuesta
+└── README.md
 ```
 
 ---
 
-## ✨ Características Principales
+## Referencia técnica
 
-- ⚡ **100% Nativo y Ultraligero**: Funciona directamente con Node.js en Windows/Linux/Mac.
-- 🖼️ **Panel de Control Web (`/qr/page`)**: Código QR dinámico, monitor de mensajes en vivo, hora local automática y botón de desvinculación.
-- ⏸️ **Botón de Pausa / Reanudar Reenvío**: Silencia o activa el reenvío de mensajes a n8n en 1 clic desde el Panel Web sin apagar el bot.
-- 🔄 **Reconexión Infinita Inteligente**: Genera nuevos códigos QR y reintenta la conexión de forma autónoma ante caídas de internet.
-- 🛡️ **Protección Anti-Bucle (Anti-Loop)**: Ignora automáticamente los mensajes generados por el propio bot (prefijo `🤖`) y deduplica eventos repetidos en menos de 2.5 segundos.
-- 📩 **Soporte Multimedia**: Envío y recepción de texto, imágenes, audios, documentos PDF/Office, ubicaciones GPS, stickers y tarjetas de contacto.
-- 💾 **Persistencia Automática**: Las credenciales de sesión se guardan de forma encriptada en la carpeta `bridge/auth_info/` para no tener que escanear el QR cada vez.
+### Datos del remitente (lo que recibe n8n en cada mensaje)
 
----
+Cada vez que llega un mensaje, el bridge le envía a n8n un JSON con estos campos ya procesados:
 
-## 📦 Plantillas de Automatización Incluidas
+| Campo en n8n | Tipo | Ejemplo | Qué es |
+| :--- | :--- | :--- | :--- |
+| `$json.body.from` | String | `"5491122334455@s.whatsapp.net"` | Dirección para responder (usalo en el campo `to:`) |
+| `$json.body.fromName` | String | `"María López"` | Nombre del contacto en WhatsApp |
+| `$json.body.senderNumber` | String | `"5491122334455"` | Número limpio, solo dígitos |
+| `$json.body.senderFormatted` | String | `"+5491122334455"` | Número con formato internacional |
+| `$json.body.body` | String | `"Hola, quiero consultar"` | Texto del mensaje |
+| `$json.body.type` | String | `"text"`, `"image"` | Tipo de contenido |
+| `$json.body.isGroup` | Boolean | `false` | Si viene de un grupo |
+| `$json.body.isSelfChat` | Boolean | `false` | Si es tu propio chat ("Tú") |
 
-En la raíz del proyecto encontrarás 3 flujos listos para importar directamente en n8n (**Menú → Import from File**):
+**Ejemplo de expresión en n8n:**
+```javascript
+"Hola " + $json.body.fromName + ", recibí tu mensaje: " + $json.body.body
+```
 
-1. **`workflow-menu-bot.json` (Recomendado - Menú Interactivo de 4 Opciones)**:
-   - 1️⃣ **Saludar**: Envía un saludo cordial y personalizado con el nombre del usuario.
-   - 2️⃣ **Dólar en Vivo**: Consulta la API pública de `DolarApi.com` y responde con la cotización de compra/venta del Dólar Blue al instante.
-   - 3️⃣ **Eco con Retardo (10s)**: Demostración de tareas asíncronas con el nodo `Wait` de n8n, respondiendo tras 10 segundos exactos.
-   - 4️⃣ **Gestor de Tareas Real (TODO CRUD 100% Funcional)**:
-     - 📋 *4* ➔ Consulta la lista actual de tareas pendientes.
-     - ➕ *4a [tarea]* ➔ Agrega una nueva tarea (ej: *4a Comprar pan*).
-     - ✅ *4b [número]* ➔ Marca una tarea como completada (ej: *4b 1*).
-     - 🗑️ *4c [número]* ➔ Elimina una tarea específica (ej: *4c 1*).
-     - 🧹 *4d* ➔ Borra todas las tareas de la lista.
-   - 🔄 **Menú Automático (Fallback)**: Si el usuario escribe cualquier otra cosa (ej: *"hola"*, *"menu"*), le despliega el menú con las 4 opciones interactivas.
+### Endpoints del Bridge (puerto 3100)
 
-2. **`workflow-eco-bot.json` (Bot Eco Privado)**:
-   - Responde únicamente a los mensajes que te envías en tu propio chat privado de WhatsApp ("Tú" / Notas personales).
-
-3. **`workflow-whatsapp-bot.json` (Auto-Respuesta Dinámica)**:
-   - Responde automáticamente a cualquier cliente o contacto saludándolo por su nombre de WhatsApp y número formateado internacionalmente.
-
----
-
-## 💡 Flexibilidad del CRUD: De Local a Bases de Datos
-
-El flujo `workflow-menu-bot.json` incluye un módulo CRUD de tareas persistente en `bridge/auth_info/tasks.json`.
-
-### ¿Por qué está implementado así de fábrica?
-Para que **cualquier persona que clone el repositorio pueda probar el CRUD al instante con 1 solo clic**, sin necesidad de registrarse en servicios externos ni configurar credenciales o claves de API.
-
-### ¿Cómo conectar tu propia Base de Datos en n8n?
-Si deseas almacenar las tareas en tu propia infraestructura o nube, simplemente reemplaza los nodos de acción HTTP en n8n por el conector nativo de tu preferencia:
-
-- 📊 **Google Sheets / Airtable / Notion**: Reemplaza el nodo por el conector de Google Sheets (operaciones *Append Row*, *Read Sheet*, *Delete Row*).
-- 🐘 **PostgreSQL / Supabase / MySQL**: Conecta el nodo de base de datos para ejecutar sentencias SQL (`INSERT INTO tareas`, `SELECT *`, `UPDATE tareas SET completada = true`).
-
----
-
-## 🔌 Referencia de la API REST (Puerto 3100)
-
-| Método | Endpoint | Descripción |
+| Método | Ruta | Para qué sirve |
 | :--- | :--- | :--- |
-| `GET` | `/qr/page` | Panel de Control Web interactivo con QR y monitor en vivo. |
-| `GET` | `/qr` | Devuelve el código QR en formato JSON o imagen PNG. |
-| `GET` | `/status` | Estado detallado de la conexión y número vinculado. |
-| `GET` | `/activity` | Lista de los últimos eventos procesados por la consola. |
-| `POST` | `/webhook/toggle-pause` | Pausa o reanuda el reenvío de mensajes a los webhooks de n8n. |
-| `POST` | `/logout` | Desvincula la sesión activa y reinicia el generador de QR. |
-| `POST` | `/tasks/action` | Ejecuta operaciones CRUD de tareas (`add`, `complete`, `delete`, `clear`, `list`). |
-| `GET` | `/tasks/:phone` | Devuelve el listado JSON de tareas correspondientes a un número telefónico. |
-| `POST` | `/send/text` | Envía un mensaje de texto plano (`{ "to": "...", "message": "..." }`). |
-| `POST` | `/send/image` | Envía una imagen con pie de foto opcional (`{ "to": "...", "url": "...", "caption": "..." }`). |
-| `POST` | `/webhook/register`| Registra una URL de Webhook receptora (`{ "url": "...", "id": "..." }`). |
+| `GET` | `/qr/page` | Panel web con QR, estado y monitor de mensajes |
+| `GET` | `/qr` | Código QR como imagen PNG |
+| `GET` | `/status` | Estado de conexión en JSON |
+| `GET` | `/activity` | Últimos eventos procesados |
+| `POST` | `/send/text` | Enviar mensaje de texto (`{ to, message }`) |
+| `POST` | `/send/image` | Enviar imagen (`{ to, url, caption }`) |
+| `POST` | `/webhook/register` | Registrar URL del webhook de n8n (`{ url, id }`) |
+| `POST` | `/webhook/toggle-pause` | Pausar o reanudar el reenvío de mensajes a n8n |
+| `POST` | `/logout` | Cerrar sesión de WhatsApp y generar nuevo QR |
+| `POST` | `/tasks/action` | Ejecutar acción CRUD (`{ phone, action, text, index }`) |
+| `GET` | `/tasks/:phone` | Ver tareas de un número específico |
 
 ---
 
-## 📄 Licencia
+## Problemas comunes
 
-Este proyecto está bajo la Licencia **MIT** — Libre para uso personal, comercial y modificaciones.
+### "Le escribí al bot y no responde nada"
+1. **¿Está corriendo el Bridge?** Fijate que la terminal de `INICIAR-BOT.bat` esté abierta y sin errores.
+2. **¿Configuraste el webhook?** En el Panel Web (`/qr/page`), verificá que la URL del webhook esté guardada y en verde.
+3. **¿El flujo de n8n está publicado?** Tiene que estar en estado *Published* (punto verde). Si solo lo tenés abierto en el editor, no recibe mensajes de producción.
+
+### "Error: The service refused the connection"
+Esto pasa cuando n8n intenta conectarse al Bridge pero usa la dirección equivocada.
+- **Si n8n está en Docker**: Los nodos HTTP tienen que apuntar a `http://host.docker.internal:3100/...` (no `localhost`).
+- **Si n8n corre directo en tu computadora**: Usá `http://localhost:3100/...`.
+
+### "Los mensajes llegan dobles"
+El Bridge tiene un filtro de deduplicación que descarta mensajes repetidos dentro de una ventana de 2.5 segundos. Si aun así te llegan dobles, puede ser un problema de sincronización de WhatsApp Web — generalmente se resuelve solo después de unos minutos.
+
+### "El QR no aparece en el panel"
+Probablemente hay una sesión anterior guardada. Hacé clic en **"Cerrar Sesión / Desvincular"** en el Panel Web para borrar las credenciales antiguas y generar un QR nuevo.
+
+### "El bot le responde a contactos que no debería"
+El flujo `workflow-menu-bot.json` solo reacciona a **mensajes privados** (no de grupos). Si ves comportamiento raro, verificá que en el nodo "¿Es mensaje privado válido?" esté la condición `isGroup = false`.
+
+---
+
+## Licencia
+
+MIT — Podés usarlo, modificarlo y distribuirlo libremente.
