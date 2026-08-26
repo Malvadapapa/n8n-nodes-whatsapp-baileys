@@ -8,21 +8,26 @@
   <img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="License" />
 </p>
 
-Conector e integración nativa de **WhatsApp** para **n8n** impulsado por [@whiskeysockets/baileys](https://baileys.wiki/). Permite automatizar chats, enviar multimedia, recibir mensajes en tiempo real y construir bots con inteligencia artificial **sin dependencias complejas, sin costos por conversación de Meta y con inicio en 1 solo clic**.
+> [!WARNING]
+> ### ⚠️ AVISO LEGAL Y DESCARGO DE RESPONSABILIDAD (USO RESPONSABLE)
+> - **Uso Educativo y Pruebas**: Este proyecto utiliza la librería de código abierto `@whiskeysockets/baileys` (protocolo multi-dispositivo de WhatsApp Web). Está diseñado **exclusivamente con fines de aprendizaje, investigación, prototipado y automatización personal**.
+> - **NO Recomendado para Producción Crítica**: Este software no es oficial ni está afiliado a Meta Platforms Inc.
+> - **Riesgo de Suspensión de Cuenta (Baneo)**: El uso de automatizaciones no oficiales, envío masivo o spam infringe los Términos de Servicio de WhatsApp y puede resultar en el bloqueo temporal o definitivo de tu línea. Úsalo bajo tu propia responsabilidad.
+> - **Solución Oficial para Empresas**: Para entornos de producción comercial, clientes reales o mensajería masiva, debes utilizar la **API Oficial de Meta (WhatsApp Cloud API)**.
 
 ---
 
 ## 📑 Tabla de Contenidos
 
-1. [Lanzador de 1 Clic para Windows](#-lanzador-de-1-clic-para-windows)
-2. [Identificación Dinámica de Números y Remitentes](#-identificación-dinámica-de-números-y-remitentes)
-3. [Características Principales](#-características-principales)
-4. [Arquitectura del Sistema](#-arquitectura-del-sistema)
-5. [Panel de Control Web (Hub)](#-panel-de-control-web-hub)
-6. [Referencia de Nodos n8n](#-referencia-de-nodos-n8n)
-7. [Referencia de la API REST (Bridge Server)](#-referencia-de-la-api-rest-bridge-server)
-8. [Plantillas de Automatización Listas para Usar](#-plantillas-de-automatización-listas-para-usar)
-9. [Protecciones y Seguridad](#-protecciones-y-seguridad)
+1. [Aviso Legal y Descargo de Responsabilidad](#-aviso-legal-y-descargo-de-responsabilidad-uso-responsable)
+2. [Lanzador de 1 Clic para Windows](#-lanzador-de-1-clic-para-windows)
+3. [Identificación Dinámica de Números y Remitentes](#-identificación-dinámica-de-números-y-remitentes)
+4. [Características Principales](#-características-principales)
+5. [Arquitectura del Sistema](#-arquitectura-del-sistema)
+6. [Panel de Control Web (Hub)](#-panel-de-control-web-hub)
+7. [Referencia de Nodos n8n](#-referencia-de-nodos-n8n)
+8. [Referencia de la API REST (Bridge Server)](#-referencia-de-la-api-rest-bridge-server)
+9. [Plantillas de Automatización Listas para Usar](#-plantillas-de-automatización-listas-para-usar)
 10. [Licencia](#-licencia)
 
 ---
