@@ -19,13 +19,16 @@
 ## 📑 Tabla de Contenidos
 
 1. [Lanzador de 1 Clic para Windows](#-lanzador-de-1-clic-para-windows)
-2. [¿Cómo Conectar con n8n? (Local, Docker o Cloud)](#-cómo-conectar-con-n8n-local-docker-o-cloud)
-3. [Identificación Dinámica de Números y Remitentes](#-identificación-dinámica-de-números-y-remitentes)
-4. [Características Principales](#-características-principales)
-5. [Panel de Control Web (Hub)](#-panel-de-control-web-hub)
-6. [Plantillas de Automatización Listas para Usar](#-plantillas-de-automatización-listas-para-usar)
-7. [Referencia de la API REST (Bridge Server)](#-referencia-de-la-api-rest-bridge-server)
-8. [Licencia](#-licencia)
+2. [Estructura del Proyecto](#-estructura-del-proyecto)
+3. [Arquitectura del Sistema](#-arquitectura-del-sistema)
+4. [¿Cómo Conectar con n8n? (Local, Docker o Cloud)](#-cómo-conectar-con-n8n-local-docker-o-cloud)
+5. [Identificación Dinámica de Números y Remitentes](#-identificación-dinámica-de-números-y-remitentes)
+6. [Características Principales](#-características-principales)
+7. [Panel de Control Web (Hub)](#-panel-de-control-web-hub)
+8. [Plantillas de Automatización Listas para Usar](#-plantillas-de-automatización-listas-para-usar)
+9. [Flexibilidad del CRUD: De Local a Bases de Datos](#-flexibilidad-del-crud-de-local-a-bases-de-datos)
+10. [Referencia de la API REST (Bridge Server)](#-referencia-de-la-api-rest-bridge-server)
+11. [Licencia](#-licencia)
 
 ---
 
@@ -38,6 +41,60 @@ Diseñado para que cualquier persona pueda encender y apagar el bot fácilmente:
    - Abre automáticamente en tu navegador el **Panel de WhatsApp** (`http://localhost:3100/qr/page`).
 2. **Para apagar el Bot**: Haz doble clic en **`DETENER-BOT.bat`** (o cierra la ventana de la terminal).
    - Libera los puertos y detiene cualquier proceso activo de inmediato.
+
+---
+
+## 📁 Estructura del Proyecto
+
+El repositorio está organizado de forma modular, separando el servidor de conexión de WhatsApp de los flujos y nodos de n8n:
+
+```
+n8n-nodes-whatsapp-baileys/
+├── INICIAR-BOT.bat              # Lanzador nativo en 1 solo clic para Windows
+├── DETENER-BOT.bat              # Detiene procesos huérfanos y libera el puerto 3100
+│
+├── bridge/                      # Servidor Gateway Express con Baileys
+│   ├── auth_info/               # Almacenamiento local persistente
+│   │   ├── tasks.json           # Base de datos local de tareas (CRUD)
+│   │   └── webhooks_config.json # Registro de URLs de Webhook de n8n
+│   ├── src/                     # Código fuente en TypeScript
+│   │   ├── baileys-manager.ts   # Conexión WhatsApp, filtros anti-loop y parseo de datos
+│   │   ├── server.ts            # Servidor HTTP Express y middleware
+│   │   └── routes/              # Endpoints: QR Hub, Envíos, Tareas y Webhooks
+│   ├── package.json             # Dependencias del servidor Bridge
+│   └── tsconfig.json            # Configuración de compilación TypeScript
+│
+├── nodes/                       # Nodos nativos comunitarios para n8n
+│   ├── WhatsAppBaileys/         # Nodo de acción para enviar mensajes, imágenes y archivos
+│   └── WhatsAppBaileysTrigger/  # Nodo Trigger para recibir eventos de WhatsApp
+│
+├── credentials/                 # Credenciales de autenticación para n8n
+│   └── WhatsAppBaileysApi.credentials.ts
+│
+├── workflow-menu-bot.json       # Flujo n8n: Menú interactivo con 4 opciones + CRUD
+├── workflow-eco-bot.json        # Flujo n8n: Bot espejo para pruebas privadas ("Tú")
+├── workflow-whatsapp-bot.json   # Flujo n8n: Auto-respuesta con datos del cliente
+├── package.json                 # Configuración del paquete principal
+└── README.md                    # Documentación completa del proyecto
+```
+
+---
+
+## 🏗️ Arquitectura del Sistema
+
+```
+  ┌─────────────────┐             ┌─────────────────────────────┐             ┌─────────────────────┐
+  │                 │  WebSocket  │   WhatsApp Gateway (Local)  │  HTTP /     │         n8n         │
+  │  WhatsApp Web   │ ◄─────────► │      (Express + Baileys)    │  Webhooks   │ (Workflows & Logic) │
+  │   (Servidores)  │             │        [Puerto 3100]        │ ◄─────────► │    (Local o Cloud)  │
+  └─────────────────┘             └─────────────────────────────┘             └─────────────────────┘
+                                                 │
+                                                 ▼
+                                     ┌───────────────────────┐
+                                     │   Panel Web de QR     │
+                                     │  (/qr/page en vivo)   │
+                                     └───────────────────────┘
+```
 
 ---
 
@@ -123,6 +180,21 @@ En la raíz del proyecto encontrarás 3 flujos listos para importar directamente
 
 ---
 
+## 💡 Flexibilidad del CRUD: De Local a Bases de Datos
+
+El flujo `workflow-menu-bot.json` incluye un módulo CRUD de tareas persistente en `bridge/auth_info/tasks.json`.
+
+### ¿Por qué está implementado así de fábrica?
+Para que **cualquier persona que clone el repositorio pueda probar el CRUD al instante con 1 solo clic**, sin necesidad de registrarse en servicios externos ni configurar credenciales o claves de API.
+
+### ¿Cómo conectar tu propia Base de Datos en n8n?
+Si deseas almacenar las tareas en tu propia infraestructura o nube, simplemente reemplaza los nodos de acción HTTP en n8n por el conector nativo de tu preferencia:
+
+- 📊 **Google Sheets / Airtable / Notion**: Reemplaza el nodo por el conector de Google Sheets (operaciones *Append Row*, *Read Sheet*, *Delete Row*).
+- 🐘 **PostgreSQL / Supabase / MySQL**: Conecta el nodo de base de datos para ejecutar sentencias SQL (`INSERT INTO tareas`, `SELECT *`, `UPDATE tareas SET completada = true`).
+
+---
+
 ## 🔌 Referencia de la API REST (Puerto 3100)
 
 | Método | Endpoint | Descripción |
@@ -133,6 +205,8 @@ En la raíz del proyecto encontrarás 3 flujos listos para importar directamente
 | `GET` | `/activity` | Lista de los últimos eventos procesados por la consola. |
 | `POST` | `/webhook/toggle-pause` | Pausa o reanuda el reenvío de mensajes a los webhooks de n8n. |
 | `POST` | `/logout` | Desvincula la sesión activa y reinicia el generador de QR. |
+| `POST` | `/tasks/action` | Ejecuta operaciones CRUD de tareas (`add`, `complete`, `delete`, `clear`, `list`). |
+| `GET` | `/tasks/:phone` | Devuelve el listado JSON de tareas correspondientes a un número telefónico. |
 | `POST` | `/send/text` | Envía un mensaje de texto plano (`{ "to": "...", "message": "..." }`). |
 | `POST` | `/send/image` | Envía una imagen con pie de foto opcional (`{ "to": "...", "url": "...", "caption": "..." }`). |
 | `POST` | `/webhook/register`| Registra una URL de Webhook receptora (`{ "url": "...", "id": "..." }`). |
