@@ -229,18 +229,28 @@
     },
     {
       "parameters": {
+        "jsCode": "const raw = String($json.body.body || '').trim();\nconst phone = $json.body.from;\nlet action = 'list';\nlet taskText = '';\nlet index = null;\n\nconst lower = raw.toLowerCase();\nif (lower.startsWith('4a') || lower.startsWith('4 a')) {\n  action = 'add';\n  taskText = raw.replace(/^4\\s*a\\s*/i, '').trim();\n} else if (lower.startsWith('4b') || lower.startsWith('4 b')) {\n  action = 'complete';\n  const match = raw.match(/^4\\s*b\\s*(\\d+)/i);\n  index = match ? match[1] : null;\n} else if (lower.startsWith('4c') || lower.startsWith('4 c')) {\n  action = 'delete';\n  const match = raw.match(/^4\\s*c\\s*(\\d+)/i);\n  index = match ? match[1] : null;\n} else if (lower.startsWith('4d') || lower.startsWith('4 d')) {\n  action = 'clear';\n}\n\nreturn {\n  json: {\n    phone,\n    action,\n    text: taskText,\n    index\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 620],
+      "id": "node-parse-crud",
+      "name": "Procesar Comando CRUD"
+    },
+    {
+      "parameters": {
         "method": "POST",
-        "url": "http://host.docker.internal:3100/send/text",
+        "url": "http://host.docker.internal:3100/tasks/action",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ to: $('Mensaje Recibido (Webhook)').first().json.body.from, message: '📝 *Sistema de Notas / TODO Demo:*\\n\\n✅ [1] Iniciar servidor local de WhatsApp\\n✅ [2] Vincular cuenta con Código QR\\n⏳ [3] Probar el menú de opciones (En curso)\\n📌 [4] Integrar Base de Datos / IA generativa (Pendiente)\\n\\n💡 _Tip: Puedes conectar un nodo de Google Sheets, Notion o PostgreSQL para crear un CRUD 100% persistente desde WhatsApp._\\n\\n_(Escribe *menu* para más opciones)_' }) }}",
+        "jsonBody": "={{ JSON.stringify({ phone: $json.phone, action: $json.action, text: $json.text, index: $json.index }) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [960, 620],
-      "id": "node-reply-todo",
-      "name": "Opción 4: Mini TODO / CRUD"
+      "position": [1180, 620],
+      "id": "node-execute-tasks-api",
+      "name": "Ejecutar Acción CRUD"
     },
     {
       "parameters": {
@@ -248,7 +258,22 @@
         "url": "http://host.docker.internal:3100/send/text",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ to: $('Mensaje Recibido (Webhook)').first().json.body.from, message: '🤖 *Menú Principal de Opciones:*\\n\\n¡Hola ' + ($('Mensaje Recibido (Webhook)').first().json.body.fromName || 'amigo') + '! 👋 Bienvenido.\\n\\nElige una de las siguientes opciones respondiendo con el número:\\n\\n1️⃣ *Saludar* - Te envío un saludo cordial y personalizado.\\n2️⃣ *Dólar Blue* - Consulta la cotización del dólar en vivo.\\n3️⃣ *Eco con Retardo (10s)* - Prueba de temporizador con n8n.\\n4️⃣ *Lista de Tareas (TODO)* - Gestor de notas y recordatorios.\\n\\n👉 _Escribe el número *1*, *2*, *3* o *4* para continuar._' }) }}",
+        "jsonBody": "={{ JSON.stringify({ to: $json.phone, message: $json.message }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1400, 620],
+      "id": "node-reply-tasks-msg",
+      "name": "Opción 4: Enviar Respuesta Tareas"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3100/send/text",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ to: $('Mensaje Recibido (Webhook)').first().json.body.from, message: '🤖 *Menú Principal de Opciones:*\\n\\n¡Hola ' + ($('Mensaje Recibido (Webhook)').first().json.body.fromName || 'amigo') + '! 👋 Bienvenido.\\n\\nElige una de las siguientes opciones respondiendo con el número:\\n\\n1️⃣ *Saludar* - Te envío un saludo cordial y personalizado.\\n2️⃣ *Dólar Blue* - Consulta la cotización del dólar en vivo.\\n3️⃣ *Eco con Retardo (10s)* - Prueba de temporizador con n8n.\\n4️⃣ *Lista de Tareas (TODO)* - Gestor de tareas 100% interactivo.\\n\\n👉 _Escribe el número *1*, *2*, *3* o *4* para continuar._' }) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -306,7 +331,7 @@
         ],
         [
           {
-            "node": "Opción 4: Mini TODO / CRUD",
+            "node": "Procesar Comando CRUD",
             "type": "main",
             "index": 0
           }
@@ -336,6 +361,28 @@
         [
           {
             "node": "Opción 3: Enviar Eco con Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Procesar Comando CRUD": {
+      "main": [
+        [
+          {
+            "node": "Ejecutar Acción CRUD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ejecutar Acción CRUD": {
+      "main": [
+        [
+          {
+            "node": "Opción 4: Enviar Respuesta Tareas",
             "type": "main",
             "index": 0
           }

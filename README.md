@@ -107,7 +107,12 @@ En la raíz del proyecto encontrarás 3 flujos listos para importar directamente
    - 1️⃣ **Saludar**: Envía un saludo cordial y personalizado con el nombre del usuario.
    - 2️⃣ **Dólar en Vivo**: Consulta la API pública de `DolarApi.com` y responde con la cotización de compra/venta del Dólar Blue al instante.
    - 3️⃣ **Eco con Retardo (10s)**: Demostración de tareas asíncronas con el nodo `Wait` de n8n, respondiendo tras 10 segundos exactos.
-   - 4️⃣ **TODO / Notas CRUD**: Demostración de consulta y gestión de tareas y notas.
+   - 4️⃣ **Gestor de Tareas Real (TODO CRUD 100% Funcional)**:
+     - 📋 *4* ➔ Consulta la lista actual de tareas pendientes.
+     - ➕ *4a [tarea]* ➔ Agrega una nueva tarea (ej: *4a Comprar pan*).
+     - ✅ *4b [número]* ➔ Marca una tarea como completada (ej: *4b 1*).
+     - 🗑️ *4c [número]* ➔ Elimina una tarea específica (ej: *4c 1*).
+     - 🧹 *4d* ➔ Borra todas las tareas de la lista.
    - 🔄 **Menú Automático (Fallback)**: Si el usuario escribe cualquier otra cosa (ej: *"hola"*, *"menu"*), le despliega el menú con las 4 opciones interactivas.
 
 2. **`workflow-eco-bot.json` (Bot Eco Privado)**:

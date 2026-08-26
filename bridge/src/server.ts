@@ -5,6 +5,8 @@ import { createQRRouter } from './routes/qr';
 import { createStatusRouter } from './routes/status';
 import { createSendRouter } from './routes/send';
 import { createWebhookRouter } from './routes/webhook';
+import { createTasksRouter } from './routes/tasks';
+import path from 'path';
 
 const PORT = parseInt(process.env.BRIDGE_PORT || '3100', 10);
 const API_KEY = process.env.BRIDGE_API_KEY || '';
@@ -36,6 +38,7 @@ app.use('/qr', createQRRouter(manager));
 app.use('/status', createStatusRouter(manager));
 app.use('/send', createSendRouter(manager));
 app.use('/webhook', createWebhookRouter(manager));
+app.use('/tasks', createTasksRouter(path.resolve(__dirname, '../auth_info')));
 
 // Session & Activity routes
 app.post('/logout', async (req, res) => {
