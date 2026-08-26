@@ -149,7 +149,9 @@
           ]
         },
         "fallbackOutput": "extra",
-        "options": {}
+        "options": {
+          "fallbackOutput": "extra"
+        }
       },
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.2,
@@ -236,7 +238,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [960, 600],
+      "position": [960, 620],
       "id": "node-reply-todo",
       "name": "Opción 4: Mini TODO / CRUD"
     },
@@ -251,7 +253,7 @@
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [960, 760],
+      "position": [960, 780],
       "id": "node-reply-menu-default",
       "name": "Fallback: Enviar Menú"
     }
