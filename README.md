@@ -11,7 +11,6 @@
 > [!WARNING]
 > ### ⚠️ AVISO LEGAL Y DESCARGO DE RESPONSABILIDAD (USO RESPONSABLE)
 > - **Uso Educativo y Pruebas**: Este proyecto utiliza la librería de código abierto `@whiskeysockets/baileys` (protocolo multi-dispositivo de WhatsApp Web). Está diseñado **exclusivamente con fines de aprendizaje, investigación, prototipado y automatización personal**.
-> - **NO Recomendado para Producción Crítica**: Este software no es oficial ni está afiliado a Meta Platforms Inc.
 > - **Riesgo de Suspensión de Cuenta (Baneo)**: El uso de automatizaciones no oficiales, envío masivo o spam infringe los Términos de Servicio de WhatsApp y puede resultar en el bloqueo temporal o definitivo de tu línea. Úsalo bajo tu propia responsabilidad.
 > - **Solución Oficial para Empresas**: Para entornos de producción comercial, clientes reales o mensajería masiva, debes utilizar la **API Oficial de Meta (WhatsApp Cloud API)**.
 
