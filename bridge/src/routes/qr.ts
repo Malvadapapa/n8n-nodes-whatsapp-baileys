@@ -62,7 +62,8 @@ export function createQRRouter(manager: BaileysManager): Router {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WhatsApp Bot - Panel de Control</title>
+  <title>WhatsApp Gateway - Control Hub</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2325D366'><path d='M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.312.045-.694.075-2.029-.477-.852-.352-1.428-1.205-1.47-1.263-.043-.058-.352-.468-.352-.892 0-.424.222-.633.301-.72.079-.086.172-.108.23-.108.058 0 .115.001.165.004.053.003.123-.02.193.148.072.172.247.603.269.646.022.043.036.094.007.151-.029.058-.043.094-.086.144-.043.05-.091.112-.13.151-.044.043-.09.09-.039.177.051.086.227.375.488.607.336.298.62.391.708.434.088.043.14.036.192-.023.052-.059.222-.259.281-.346.059-.086.118-.072.199-.043.081.029.516.243.604.287.088.043.147.065.169.101.022.036.022.209-.122.614z'/></svg>">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -108,167 +109,189 @@ export function createQRRouter(manager: BaileysManager): Router {
     }
 
     .grid-container {
-      display: grid;
-      grid-template-columns: 400px 1fr;
-      gap: 24px;
       width: 100%;
       max-width: 1080px;
-      align-items: start;
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 20px;
     }
 
     @media (max-width: 860px) {
-      .grid-container { grid-template-columns: 1fr; }
+      .grid-container {
+        grid-template-columns: 1fr;
+      }
     }
 
     .card {
-      background: rgba(255,255,255,0.03);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 20px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
       padding: 24px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
     }
 
-    /* Left Card: Connection Status & QR */
     .conn-card {
-      text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
+      text-align: center;
     }
+
     .conn-card h2 {
       font-size: 1.1rem;
-      margin-bottom: 16px;
+      font-weight: 600;
       color: #f8fafc;
+      margin-bottom: 16px;
+      align-self: flex-start;
     }
 
     #qr-wrapper {
-      background: white;
-      padding: 16px;
-      border-radius: 16px;
-      margin-bottom: 20px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-      display: inline-block;
-      transition: all 0.3s ease;
-    }
-    #qr-wrapper img {
-      display: block;
-      width: 250px;
-      height: 250px;
-    }
-    #qr-wrapper.hidden { display: none; }
-
-    .status-badge {
-      width: 100%;
-      padding: 12px 16px;
+      width: 240px;
+      height: 240px;
+      background: #ffffff;
       border-radius: 12px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      margin-bottom: 12px;
+      padding: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
-    .status-badge.waiting_qr { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
-    .status-badge.connecting { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
-    .status-badge.connected { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
-    .status-badge.error, .status-badge.offline { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
-    .status-badge.disconnected { background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); }
+    #qr-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    #qr-wrapper.hidden {
+      display: none;
+    }
 
     .connected-box {
       display: none;
       width: 100%;
+      background: rgba(37, 211, 102, 0.08);
+      border: 1px solid rgba(37, 211, 102, 0.25);
+      border-radius: 12px;
       padding: 20px;
-      background: rgba(34,197,94,0.06);
-      border: 1px solid rgba(34,197,94,0.2);
-      border-radius: 16px;
-      margin-bottom: 20px;
-      text-align: center;
+      margin-bottom: 16px;
     }
     .connected-box .avatar {
-      font-size: 3rem;
+      font-size: 2.2rem;
       margin-bottom: 8px;
     }
     .connected-box .phone {
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       font-weight: 700;
       color: #25D366;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
     }
     .connected-box .name {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #94a3b8;
-      margin-top: 2px;
     }
 
-    .btn-logout {
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 16px;
       width: 100%;
-      padding: 12px 18px;
-      background: rgba(239,68,68,0.15);
+      justify-content: center;
+    }
+    .status-badge.connected { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .status-badge.connecting { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.3); }
+    .status-badge.waiting_qr { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .status-badge.disconnected, .status-badge.error, .status-badge.offline { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .btn-logout {
+      display: none;
+      width: 100%;
+      padding: 10px 16px;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
       color: #f87171;
-      border: 1px solid rgba(239,68,68,0.3);
-      border-radius: 12px;
-      font-size: 0.9rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
-      display: none;
       align-items: center;
       justify-content: center;
       gap: 8px;
       transition: all 0.2s;
+      margin-bottom: 12px;
     }
     .btn-logout:hover {
-      background: rgba(239,68,68,0.25);
-      border-color: rgba(239,68,68,0.5);
-      transform: translateY(-1px);
+      background: rgba(239, 68, 68, 0.25);
+      border-color: #ef4444;
+      color: #fee2e2;
+    }
+
+    .btn-pause {
+      width: 100%;
+      padding: 9px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
     }
 
     .instructions-box {
-      font-size: 0.85rem;
-      color: #94a3b8;
-      line-height: 1.6;
-      text-align: left;
       width: 100%;
+      text-align: left;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      line-height: 1.5;
       background: rgba(0,0,0,0.2);
-      padding: 14px;
-      border-radius: 12px;
-      margin-top: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      border-left: 3px solid #25D366;
     }
-    .instructions-box strong { color: #cbd5e1; }
 
-    /* Right Card: Activity Feed Console */
     .console-card {
       display: flex;
       flex-direction: column;
-      height: 560px;
+      height: 600px;
     }
+
     .console-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
     }
     .console-header h2 {
       font-size: 1.1rem;
+      font-weight: 600;
       color: #f8fafc;
       display: flex;
       align-items: center;
       gap: 8px;
     }
+
     .console-actions {
       display: flex;
       gap: 8px;
     }
     .btn-small {
-      padding: 6px 12px;
+      padding: 5px 10px;
       background: rgba(255,255,255,0.06);
-      color: #cbd5e1;
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px;
-      font-size: 0.78rem;
-      font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 6px;
+      color: #94a3b8;
+      font-size: 0.75rem;
       cursor: pointer;
       transition: all 0.2s;
     }
@@ -279,24 +302,31 @@ export function createQRRouter(manager: BaileysManager): Router {
 
     .console-logs {
       flex: 1;
-      overflow-y: auto;
       background: #020617;
       border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px;
+      border-radius: 10px;
       padding: 14px;
-      font-family: 'JetBrains Mono', Consolas, monospace;
-      font-size: 0.85rem;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+      font-size: 0.8rem;
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
-    .console-logs::-webkit-scrollbar { width: 6px; }
-    .console-logs::-webkit-scrollbar-thumb { background: #334155; border-radius: 999px; }
+
+    .empty-logs {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #475569;
+      font-style: italic;
+    }
 
     .log-item {
       display: flex;
       align-items: flex-start;
-      gap: 10px;
+      gap: 8px;
       padding: 8px 10px;
       border-radius: 8px;
       background: rgba(255,255,255,0.02);
@@ -328,53 +358,20 @@ export function createQRRouter(manager: BaileysManager): Router {
     }
     .log-body .actor {
       font-weight: 600;
-      color: #f1f5f9;
+      color: #94a3b8;
       margin-right: 6px;
     }
     .log-body .text {
-      color: #cbd5e1;
+      color: #f1f5f9;
     }
-
-    .empty-logs {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      color: #475569;
-      gap: 8px;
-      font-size: 0.9rem;
-    }
-
-    /* Routes info footer */
-    .routes-footer {
-      width: 100%;
-      max-width: 1080px;
-      margin-top: 24px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-    }
-    .route-pill {
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px;
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .route-pill .icon { font-size: 1.2rem; }
-    .route-pill .info { display: flex; flex-direction: column; }
-    .route-pill .info .label { font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; }
-    .route-pill .info .val { font-size: 0.88rem; color: #cbd5e1; font-weight: 500; }
 
     .spinner {
       display: inline-block;
-      width: 14px; height: 14px;
-      border: 2px solid rgba(255,255,255,0.2);
-      border-top-color: currentColor;
+      width: 12px;
+      height: 12px;
+      border: 2px solid rgba(255,255,255,0.3);
       border-radius: 50%;
+      border-top-color: currentColor;
       animation: spin 0.8s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -407,7 +404,7 @@ export function createQRRouter(manager: BaileysManager): Router {
 
       <div id="connected-box" class="connected-box">
         <div class="avatar">📱</div>
-        <div class="phone" id="user-phone">+54 9 351 ...</div>
+        <div class="phone" id="user-phone">Conectado</div>
         <div class="name" id="user-name">Sesión Activa</div>
       </div>
 
@@ -438,7 +435,12 @@ export function createQRRouter(manager: BaileysManager): Router {
           <input id="input-webhook" type="text" placeholder="http://localhost:5678/webhook/whatsapp-trigger" style="flex:1; background:#020617; border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:8px 12px; font-size:0.82rem; color:#fff; font-family:monospace;">
           <button class="btn-small" style="background:#25D366; color:#000; font-weight:700; border:none;" onclick="handleSaveWebhook()">Guardar</button>
         </div>
-        <div id="webhook-feedback" style="font-size:0.78rem; color:#64748b;"></div>
+        <div id="webhook-feedback" style="font-size:0.78rem; color:#64748b; margin-bottom:12px;"></div>
+
+        <!-- Pause / Resume forwarding toggle button -->
+        <button id="btn-toggle-pause" class="btn-pause" onclick="handleTogglePause()" style="background:rgba(234,179,8,0.15); color:#facc15; border:1px solid rgba(234,179,8,0.3);">
+          ⏸️ Pausar Reenvío a n8n
+        </button>
       </div>
     </div>
 
@@ -460,34 +462,10 @@ export function createQRRouter(manager: BaileysManager): Router {
 
   </div>
 
-  <!-- Routes Info Footer -->
-  <div class="routes-footer">
-    <div class="route-pill">
-      <div class="icon">🔌</div>
-      <div class="info">
-        <span class="label">Bridge Server</span>
-        <span class="val">http://localhost:3100</span>
-      </div>
-    </div>
-    <div class="route-pill">
-      <div class="icon">⚙️</div>
-      <div class="info">
-        <span class="label">Editor de n8n</span>
-        <span class="val"><a href="http://localhost:5678" target="_blank" style="color:#60a5fa; text-decoration:none;">http://localhost:5678 ↗</a></span>
-      </div>
-    </div>
-    <div class="route-pill">
-      <div class="icon">📡</div>
-      <div class="info">
-        <span class="label">Webhooks Activos</span>
-        <span class="val" id="webhooks-count">1 registrado</span>
-      </div>
-    </div>
-  </div>
-
   <script>
     let isConnected = false;
     let renderedLogIds = new Set();
+    let isPausedState = false;
 
     async function updateStatus() {
       const qrWrapper = document.getElementById('qr-wrapper');
@@ -498,7 +476,6 @@ export function createQRRouter(manager: BaileysManager): Router {
       const instructions = document.getElementById('instructions');
       const userPhone = document.getElementById('user-phone');
       const userName = document.getElementById('user-name');
-      const webhooksCount = document.getElementById('webhooks-count');
 
       try {
         const res = await fetch('/status');
@@ -508,7 +485,7 @@ export function createQRRouter(manager: BaileysManager): Router {
         statusBadge.className = 'status-badge ' + state;
         statusBadge.innerHTML = (state === 'connecting' ? '<span class="spinner"></span> ' : '') + (data.statusMessage || 'Estado desconocido');
 
-        webhooksCount.textContent = (data.registeredWebhooksCount || 0) + ' registrado(s)';
+        updatePauseButton(Boolean(data.isWebhooksPaused));
 
         if (state === 'connected') {
           isConnected = true;
@@ -536,6 +513,37 @@ export function createQRRouter(manager: BaileysManager): Router {
       } catch (e) {
         statusBadge.className = 'status-badge offline';
         statusBadge.textContent = '❌ Servidor Bridge no responde';
+      }
+    }
+
+    function updatePauseButton(isPaused) {
+      isPausedState = isPaused;
+      const btn = document.getElementById('btn-toggle-pause');
+      if (!btn) return;
+      if (isPaused) {
+        btn.innerHTML = '▶️ Reanudar Reenvío a n8n';
+        btn.style.background = 'rgba(34,197,94,0.15)';
+        btn.style.color = '#4ade80';
+        btn.style.borderColor = 'rgba(34,197,94,0.3)';
+      } else {
+        btn.innerHTML = '⏸️ Pausar Reenvío a n8n';
+        btn.style.background = 'rgba(234,179,8,0.15)';
+        btn.style.color = '#facc15';
+        btn.style.borderColor = 'rgba(234,179,8,0.3)';
+      }
+    }
+
+    async function handleTogglePause() {
+      const btn = document.getElementById('btn-toggle-pause');
+      btn.disabled = true;
+      try {
+        const res = await fetch('/webhook/toggle-pause', { method: 'POST' });
+        const data = await res.json();
+        updatePauseButton(data.isPaused);
+      } catch (err) {
+        alert('Error al cambiar pausa: ' + err.message);
+      } finally {
+        btn.disabled = false;
       }
     }
 

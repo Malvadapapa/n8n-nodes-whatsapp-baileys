@@ -40,6 +40,7 @@ export interface ConnectionStatus {
   errorDetail: string | null;
   state: 'disconnected' | 'waiting_qr' | 'connecting' | 'connected' | 'error';
   registeredWebhooksCount: number;
+  isWebhooksPaused: boolean;
 }
 
 export interface IncomingMessage {
@@ -69,6 +70,7 @@ export interface IncomingMessage {
 export class BaileysManager {
   private sock: WASocket | null = null;
   private qrCode: string | null = null;
+  private isWebhooksPaused = false;
   private status: ConnectionStatus = {
     connected: false,
     phoneNumber: null,
@@ -78,6 +80,7 @@ export class BaileysManager {
     errorDetail: null,
     state: 'disconnected',
     registeredWebhooksCount: 0,
+    isWebhooksPaused: false,
   };
   private webhooks: Map<string, WebhookRegistration> = new Map();
   private activityLogs: ActivityLogItem[] = [];
@@ -534,6 +537,11 @@ export class BaileysManager {
   private async forwardToWebhooks(message: IncomingMessage): Promise<void> {
     const payload = { ...message, rawMessage: undefined };
 
+    if (this.isWebhooksPaused) {
+      this.logActivity('system', 'Webhook', `⏸️ Mensaje recibido pero el reenvío a n8n está PAUSADO.`);
+      return;
+    }
+
     if (this.webhooks.size === 0) {
       this.logActivity('system', 'Webhook', '⚠️ Mensaje recibido pero no hay ningún webhook de n8n configurado.');
       return;
@@ -566,6 +574,17 @@ export class BaileysManager {
 
   // ─── Public API Methods ───────────────────────────────────────────────
 
+  toggleWebhooksPause(): boolean {
+    this.isWebhooksPaused = !this.isWebhooksPaused;
+    this.status.isWebhooksPaused = this.isWebhooksPaused;
+    this.logActivity('system', 'Webhook', this.isWebhooksPaused ? '⏸️ Reenvío de mensajes a n8n PAUSADO manualmente.' : '▶️ Reenvío de mensajes a n8n REANUDADO.');
+    return this.isWebhooksPaused;
+  }
+
+  isPaused(): boolean {
+    return this.isWebhooksPaused;
+  }
+
   getQRCode(): string | null {
     return this.qrCode;
   }
@@ -573,6 +592,7 @@ export class BaileysManager {
   getStatus(): ConnectionStatus {
     return {
       ...this.status,
+      isWebhooksPaused: this.isWebhooksPaused,
       registeredWebhooksCount: this.webhooks.size,
     };
   }

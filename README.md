@@ -18,28 +18,50 @@
 
 ## 📑 Tabla de Contenidos
 
-1. [Aviso Legal y Descargo de Responsabilidad](#-aviso-legal-y-descargo-de-responsabilidad-uso-responsable)
-2. [Lanzador de 1 Clic para Windows](#-lanzador-de-1-clic-para-windows)
+1. [Lanzador de 1 Clic para Windows](#-lanzador-de-1-clic-para-windows)
+2. [¿Cómo Conectar con n8n? (Local, Docker o Cloud)](#-cómo-conectar-con-n8n-local-docker-o-cloud)
 3. [Identificación Dinámica de Números y Remitentes](#-identificación-dinámica-de-números-y-remitentes)
 4. [Características Principales](#-características-principales)
-5. [Arquitectura del Sistema](#-arquitectura-del-sistema)
-6. [Panel de Control Web (Hub)](#-panel-de-control-web-hub)
-7. [Referencia de Nodos n8n](#-referencia-de-nodos-n8n)
-8. [Referencia de la API REST (Bridge Server)](#-referencia-de-la-api-rest-bridge-server)
-9. [Plantillas de Automatización Listas para Usar](#-plantillas-de-automatización-listas-para-usar)
-10. [Licencia](#-licencia)
+5. [Panel de Control Web (Hub)](#-panel-de-control-web-hub)
+6. [Plantillas de Automatización Listas para Usar](#-plantillas-de-automatización-listas-para-usar)
+7. [Referencia de la API REST (Bridge Server)](#-referencia-de-la-api-rest-bridge-server)
+8. [Licencia](#-licencia)
 
 ---
 
 ## 🖱️ Lanzador de 1 Clic para Windows
 
-Diseñado para que cualquier persona sin conocimientos técnicos pueda encender y apagar el bot fácilmente:
+Diseñado para que cualquier persona pueda encender y apagar el bot fácilmente:
 
 1. **Para encender el Bot**: Haz doble clic en **`INICIAR-BOT.bat`**.
-   - Inicia el servidor nativo en menos de 1 segundo de forma ultraligera.
+   - Inicia el servidor nativo en menos de 1 segundo.
    - Abre automáticamente en tu navegador el **Panel de WhatsApp** (`http://localhost:3100/qr/page`).
 2. **Para apagar el Bot**: Haz doble clic en **`DETENER-BOT.bat`** (o cierra la ventana de la terminal).
-   - Libera los puertos y detiene cualquier proceso de WhatsApp de inmediato.
+   - Libera los puertos y detiene cualquier proceso activo de inmediato.
+
+---
+
+## 🌐 ¿Cómo Conectar con n8n? (Local, Docker o Cloud)
+
+El sistema es **100% dinámico y universal**: funciona con cualquier instalación de n8n.
+
+### 🔹 Opción A: Tienes n8n ejecutándose en Docker Desktop (Más habitual)
+1. En el Panel Web (`http://localhost:3100/qr/page`), pon como Webhook destino:  
+   `http://localhost:5678/webhook/whatsapp-trigger`
+2. En tus nodos de n8n para enviar mensajes (HTTP Request), la URL del servidor local es:  
+   `http://host.docker.internal:3100/send/text` *(Ya configurado por defecto en los flujos incluidos)*
+
+### 🔹 Opción B: Tienes n8n ejecutándose directo con Node.js (`npx n8n`)
+1. En el Panel Web (`http://localhost:3100/qr/page`), pon como Webhook destino:  
+   `http://localhost:5678/webhook/whatsapp-trigger`
+2. En tus nodos de n8n para enviar mensajes (HTTP Request), la URL es:  
+   `http://localhost:3100/send/text`
+
+### 🔹 Opción C: Tienes n8n en la Nube (VPS o n8n Cloud)
+1. En el Panel Web, pega la URL pública de tu n8n en la nube:  
+   `https://tu-instancia.app.n8n.cloud/webhook/whatsapp-trigger`
+2. Para que tu n8n en la nube le envíe mensajes a tu computadora local, puedes abrir un túnel seguro gratuito con ngrok (`ngrok http 3100`) y usar la URL pública en n8n:  
+   `https://tu-subdominio.ngrok-free.app/send/text`
 
 ---
 
@@ -49,17 +71,16 @@ Cada vez que entra un mensaje a tu n8n a través del Webhook, el sistema envía 
 
 | Campo en n8n | Tipo | Ejemplo | Descripción |
 | :--- | :--- | :--- | :--- |
-| `{{ $json.body.senderNumber }}` | `String` | `"5493517883811"` | **Número limpio** (solo dígitos, sin símbolos). |
-| `{{ $json.body.senderFormatted }}` | `String` | `"+5493517883811"` | **Número internacional formateado** con signo `+`. |
-| `{{ $json.body.fromName }}` | `String` | `"Cristian"`, `"Karina"` | **Nombre visible** del contacto en WhatsApp. |
-| `{{ $json.body.from }}` | `String` | `"5493517883811@s.whatsapp.net"` | **Dirección JID** lista para usar en el campo `to:` de respuesta. |
+| `{{ $json.body.senderNumber }}` | `String` | `"5491122334455"` | **Número limpio** (solo dígitos, sin símbolos). |
+| `{{ $json.body.senderFormatted }}` | `String` | `"+5491122334455"` | **Número internacional formateado** con signo `+`. |
+| `{{ $json.body.fromName }}` | `String` | `"Juan Pérez"` | **Nombre visible** del contacto en WhatsApp. |
+| `{{ $json.body.from }}` | `String` | `"5491122334455@s.whatsapp.net"` | **Dirección JID** lista para usar en el campo `to:` de respuesta. |
 | `{{ $json.body.isSelfChat }}` | `Boolean` | `true` / `false` | `true` si es tu propio chat personal ("Tú" / Notas), `false` si es otra persona. |
 | `{{ $json.body.isGroup }}` | `Boolean` | `true` / `false` | `true` si el mensaje proviene de un grupo de WhatsApp. |
-| `{{ $json.body.body }}` | `String` | `"Hola, cuánto cuesta el producto?"` | **Texto o descripción** del mensaje recibido. |
+| `{{ $json.body.body }}` | `String` | `"Hola, quisiera consultar el menú"` | **Texto o descripción** del mensaje recibido. |
 | `{{ $json.body.type }}` | `String` | `"text"`, `"image"`, `"audio"` | Tipo de contenido del mensaje. |
 
-### 💡 Ejemplo de Respuesta en n8n:
-En tu nodo de enviar mensaje puedes escribir expresiones tan sencillas como:
+### 💡 Ejemplo de Expresión en n8n:
 ```javascript
 "¡Hola " + $json.body.fromName + " (" + $json.body.senderFormatted + ")! Recibí tu mensaje: " + $json.body.body
 ```
@@ -68,63 +89,19 @@ En tu nodo de enviar mensaje puedes escribir expresiones tan sencillas como:
 
 ## ✨ Características Principales
 
-- ⚡ **100% Nativo y Ultraligero**: Funciona directamente con Node.js en Windows/Linux/Mac con velocidad y rendimiento óptimos.
-- 🖼️ **Panel de Control Visual**: Interfaz web intuitiva en `http://localhost:3100/qr/page` con código QR dinámico, monitor de mensajes en vivo, hora local automática y botón de desvinculación / cerrar sesión.
-- 🔄 **Reconexión Infinita Inteligente**: Si se corta internet o el QR expira, el sistema genera nuevos códigos y reintenta la conexión de forma autónoma.
+- ⚡ **100% Nativo y Ultraligero**: Funciona directamente con Node.js en Windows/Linux/Mac.
+- 🖼️ **Panel de Control Web (`/qr/page`)**: Código QR dinámico, monitor de mensajes en vivo, hora local automática y botón de desvinculación.
+- ⏸️ **Botón de Pausa / Reanudar Reenvío**: Silencia o activa el reenvío de mensajes a n8n en 1 clic desde el Panel Web sin apagar el bot.
+- 🔄 **Reconexión Infinita Inteligente**: Genera nuevos códigos QR y reintenta la conexión de forma autónoma ante caídas de internet.
 - 🛡️ **Protección Anti-Bucle (Anti-Loop)**: Ignora automáticamente los mensajes generados por el propio bot (prefijo `🤖`) y deduplica eventos repetidos en menos de 2.5 segundos.
 - 📩 **Soporte Multimedia**: Envío y recepción de texto, imágenes, audios, documentos PDF/Office, ubicaciones GPS, stickers y tarjetas de contacto.
 - 💾 **Persistencia Automática**: Las credenciales de sesión se guardan de forma encriptada en la carpeta `bridge/auth_info/` para no tener que escanear el QR cada vez.
 
 ---
 
-## 🏗️ Arquitectura del Sistema
-
-```
-  ┌─────────────────┐             ┌─────────────────────────────┐             ┌─────────────────────┐
-  │                 │  WebSocket  │   WhatsApp Gateway (Local)  │  HTTP /     │         n8n         │
-  │  WhatsApp Web   │ ◄─────────► │      (Express + Baileys)    │  Webhooks   │ (Workflows & Logic) │
-  │   (Servidores)  │             │        [Puerto 3100]        │ ◄─────────► │    (Local o Cloud)  │
-  └─────────────────┘             └─────────────────────────────┘             └─────────────────────┘
-                                                 │
-                                                 ▼
-                                     ┌───────────────────────┐
-                                     │   Panel Web de QR     │
-                                     │  (/qr/page en vivo)   │
-                                     └───────────────────────┘
-```
-
----
-
-## 🌐 Panel de Control Web (Hub)
-
-Al ingresar a **`http://localhost:3100/qr/page`** tendrás acceso a:
-
-1. **Estado de Conexión en Tiempo Real**: Nombre de la cuenta conectada, número telefónico y estado del enlace.
-2. **Código QR con Auto-Recuperación**: Generación instantánea en caso de no haber vinculado ninguna cuenta.
-3. **🔴 Botón Cerrar Sesión / Desvincular**: Elimina la sesión actual con un solo clic y genera un nuevo QR de inmediato.
-4. **🔗 Configuración de Webhook Destino**: Campo para pegar la URL de n8n (ej: `http://localhost:5678/webhook/whatsapp-trigger` o tu servidor en la nube) con persistencia automática entre reinicios.
-5. **📊 Monitor de Mensajes en Vivo**: Consola interactiva con la hora local de tu computadora que muestra mensajes entrantes, confirmación de entrega a n8n (HTTP 200) y respuestas automáticas del bot.
-
----
-
-## 🔌 Referencia de la API REST (Puerto 3100)
-
-| Método | Endpoint | Descripción |
-| :--- | :--- | :--- |
-| `GET` | `/qr/page` | Panel de Control Web interactivo con QR y monitor en vivo. |
-| `GET` | `/qr` | Devuelve el código QR en formato JSON o imagen PNG (`/qr/image`). |
-| `GET` | `/status` | Estado detallado de la conexión y número vinculado. |
-| `GET` | `/activity` | Lista de los últimos 80 eventos procesados por la consola. |
-| `POST` | `/logout` | Desvincula la sesión activa y reinicia el generador de QR. |
-| `POST` | `/send/text` | Envía un mensaje de texto plano (`{ "to": "...", "message": "..." }`). |
-| `POST` | `/send/image` | Envía una imagen con pie de foto opcional (`{ "to": "...", "url": "...", "caption": "..." }`). |
-| `POST` | `/webhook/register`| Registra una URL de Webhook receptora (`{ "url": "...", "id": "..." }`). |
-
----
-
 ## 📦 Plantillas de Automatización Incluidas
 
-En la raíz del proyecto encontrarás 3 flujos listos para importar directamente en n8n:
+En la raíz del proyecto encontrarás 3 flujos listos para importar directamente en n8n (**Menú → Import from File**):
 
 1. **`workflow-menu-bot.json` (Recomendado - Menú Interactivo de 4 Opciones)**:
    - 1️⃣ **Saludar**: Envía un saludo cordial y personalizado con el nombre del usuario.
@@ -138,6 +115,22 @@ En la raíz del proyecto encontrarás 3 flujos listos para importar directamente
 
 3. **`workflow-whatsapp-bot.json` (Auto-Respuesta Dinámica)**:
    - Responde automáticamente a cualquier cliente o contacto saludándolo por su nombre de WhatsApp y número formateado internacionalmente.
+
+---
+
+## 🔌 Referencia de la API REST (Puerto 3100)
+
+| Método | Endpoint | Descripción |
+| :--- | :--- | :--- |
+| `GET` | `/qr/page` | Panel de Control Web interactivo con QR y monitor en vivo. |
+| `GET` | `/qr` | Devuelve el código QR en formato JSON o imagen PNG. |
+| `GET` | `/status` | Estado detallado de la conexión y número vinculado. |
+| `GET` | `/activity` | Lista de los últimos eventos procesados por la consola. |
+| `POST` | `/webhook/toggle-pause` | Pausa o reanuda el reenvío de mensajes a los webhooks de n8n. |
+| `POST` | `/logout` | Desvincula la sesión activa y reinicia el generador de QR. |
+| `POST` | `/send/text` | Envía un mensaje de texto plano (`{ "to": "...", "message": "..." }`). |
+| `POST` | `/send/image` | Envía una imagen con pie de foto opcional (`{ "to": "...", "url": "...", "caption": "..." }`). |
+| `POST` | `/webhook/register`| Registra una URL de Webhook receptora (`{ "url": "...", "id": "..." }`). |
 
 ---
 

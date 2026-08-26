@@ -25,6 +25,15 @@
           },
           "conditions": [
             {
+              "id": "check-is-private",
+              "leftValue": "={{ $json.body.isGroup }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            },
+            {
               "id": "check-not-bot",
               "leftValue": "={{ $json.body.body }}",
               "rightValue": "🤖",
@@ -51,7 +60,7 @@
       "typeVersion": 2,
       "position": [400, 400],
       "id": "node-filter-valid",
-      "name": "¿Es mensaje válido?"
+      "name": "¿Es mensaje privado válido?"
     },
     {
       "parameters": {
@@ -252,14 +261,14 @@
       "main": [
         [
           {
-            "node": "¿Es mensaje válido?",
+            "node": "¿Es mensaje privado válido?",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "¿Es mensaje válido?": {
+    "¿Es mensaje privado válido?": {
       "main": [
         [
           {

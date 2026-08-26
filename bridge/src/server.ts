@@ -47,6 +47,15 @@ app.post('/logout', async (req, res) => {
   }
 });
 
+app.post('/webhook/toggle-pause', (req, res) => {
+  const isPaused = manager.toggleWebhooksPause();
+  res.json({
+    success: true,
+    isPaused,
+    message: isPaused ? 'Reenvío de mensajes a n8n pausado.' : 'Reenvío de mensajes a n8n reanudado.',
+  });
+});
+
 app.get('/activity', (req, res) => {
   res.json({ logs: manager.getActivityLogs() });
 });
