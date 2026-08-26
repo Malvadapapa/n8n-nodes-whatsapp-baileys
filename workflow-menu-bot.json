@@ -1,0 +1,338 @@
+{
+  "name": "WhatsApp Bot - Menú Interactivo (4 Opciones)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-trigger",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [180, 400],
+      "id": "node-webhook-menu",
+      "name": "Mensaje Recibido (Webhook)",
+      "webhookId": "whatsapp-trigger"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-not-bot",
+              "leftValue": "={{ $json.body.body }}",
+              "rightValue": "🤖",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              }
+            },
+            {
+              "id": "check-not-empty",
+              "leftValue": "={{ $json.body.body }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [400, 400],
+      "id": "node-filter-valid",
+      "name": "¿Es mensaje válido?"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.body.trim() }}",
+                    "rightValue": "1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.body.trim() }}",
+                    "rightValue": "2",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.body.trim() }}",
+                    "rightValue": "3",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.body.trim() }}",
+                    "rightValue": "4",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "fallbackOutput": "extra",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [640, 400],
+      "id": "node-switch-menu",
+      "name": "Evaluar Opción del Menú"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3100/send/text",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ to: $json.body.from, message: '🤖 ¡Hola ' + ($json.body.fromName || 'amigo') + ' (' + $json.body.senderFormatted + ')! 👋\\n\\n¡Espero que estés teniendo un día increíble! Estoy listo para ayudarte con lo que necesites. 🚀\\n\\n_(Escribe *menu* para volver a ver las opciones)_' }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 160],
+      "id": "node-reply-saludo",
+      "name": "Opción 1: Saludo"
+    },
+    {
+      "parameters": {
+        "url": "https://dolarapi.com/v1/dolares/blue",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 300],
+      "id": "node-fetch-dolar",
+      "name": "Consultar Dolar API"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3100/send/text",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ to: $('Mensaje Recibido (Webhook)').item.json.body.from, message: '💵 *Cotización del Dólar Blue en Vivo:*\\n\\n🟢 *Compra:* $' + $json.compra + '\\n🔴 *Venta:* $' + $json.venta + '\\n📅 *Fecha:* ' + $json.fechaActualizacion + '\\n\\n_(Fuente: DolarApi.com | Escribe *menu* para más opciones)_' }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1180, 300],
+      "id": "node-reply-dolar",
+      "name": "Opción 2: Enviar Dólar"
+    },
+    {
+      "parameters": {
+        "amount": 10,
+        "unit": "seconds"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [960, 460],
+      "id": "node-wait-10s",
+      "name": "Esperar 10 Segundos",
+      "webhookId": "whatsapp-wait-10s"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3100/send/text",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ to: $('Mensaje Recibido (Webhook)').item.json.body.from, message: '🤖 ⏳ *Eco diferido (10 segundos):*\\n\\n¡Han pasado exactamente 10 segundos desde que me escribiste! Tu solicitud fue procesada con éxito. ⏱️🚀' }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1180, 460],
+      "id": "node-reply-eco-delay",
+      "name": "Opción 3: Enviar Eco con Delay"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3100/send/text",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ to: $json.body.from, message: '📝 *Sistema de Notas / TODO Demo:*\\n\\n✅ [1] Iniciar servidor local de WhatsApp\\n✅ [2] Vincular cuenta con Código QR\\n⏳ [3] Configurar flujos interactivos en n8n (En curso)\\n📌 [4] Integrar Base de Datos / IA generativa (Pendiente)\\n\\n💡 _Tip: Puedes conectar un nodo de Google Sheets, Notion o PostgreSQL para crear un CRUD 100% persistente desde WhatsApp._' }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 600],
+      "id": "node-reply-todo",
+      "name": "Opción 4: Mini TODO / CRUD"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3100/send/text",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ to: $json.body.from, message: '🤖 *Menú Principal de Opciones:*\\n\\n¡Hola ' + ($json.body.fromName || 'amigo') + '! Elige una de las siguientes opciones respondiendo con el número:\\n\\n1️⃣ *Saludar* - Te envío un saludo personalizado.\\n2️⃣ *Dólar Blue* - Consulta la cotización en tiempo real.\\n3️⃣ *Eco con Retardo (10s)* - Prueba de temporizador con n8n.\\n4️⃣ *Lista de Tareas (TODO)* - Gestor de recordatorios demo.\\n\\n👉 _Escribe 1, 2, 3 o 4 para continuar._' }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 760],
+      "id": "node-reply-menu-default",
+      "name": "Fallback: Enviar Menú"
+    }
+  ],
+  "connections": {
+    "Mensaje Recibido (Webhook)": {
+      "main": [
+        [
+          {
+            "node": "¿Es mensaje válido?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Es mensaje válido?": {
+      "main": [
+        [
+          {
+            "node": "Evaluar Opción del Menú",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluar Opción del Menú": {
+      "main": [
+        [
+          {
+            "node": "Opción 1: Saludo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Consultar Dolar API",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Esperar 10 Segundos",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Opción 4: Mini TODO / CRUD",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fallback: Enviar Menú",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar Dolar API": {
+      "main": [
+        [
+          {
+            "node": "Opción 2: Enviar Dólar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Esperar 10 Segundos": {
+      "main": [
+        [
+          {
+            "node": "Opción 3: Enviar Eco con Delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "name": "WhatsApp Bot - Auto Respuesta Dinámica",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "whatsapp-trigger",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "id": "webhook-trigger",
+      "name": "Mensaje Recibido",
+      "webhookId": "whatsapp-trigger"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "check-not-bot",
+              "leftValue": "={{ $json.body.body }}",
+              "rightValue": "🤖",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              }
+            },
+            {
+              "id": "check-has-text",
+              "leftValue": "={{ $json.body.body }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, 300],
+      "id": "if-valid-msg",
+      "name": "¿Es mensaje válido?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3100/send/text",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ to: $json.body.from, message: '🤖 ¡Hola ' + ($json.body.fromName || 'amigo') + ' (' + $json.body.senderFormatted + ')! Recibí tu mensaje: \"' + ($json.body.body || '') + '\".' }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [720, 280],
+      "id": "send-reply",
+      "name": "Responder al Remitente Dinámico"
+    }
+  ],
+  "connections": {
+    "Mensaje Recibido": {
+      "main": [
+        [
+          {
+            "node": "¿Es mensaje válido?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Es mensaje válido?": {
+      "main": [
+        [
+          {
+            "node": "Responder al Remitente Dinámico",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "name": "n8n-nodes-whatsapp-baileys",
+  "version": "1.0.0",
+  "description": "n8n community node for WhatsApp integration via Baileys (unofficial WhatsApp Web API)",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "whatsapp",
+    "baileys",
+    "chatbot",
+    "messaging"
+  ],
+  "license": "MIT",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint . --ext .ts",
+    "prepublishOnly": "npm run build"
+  },
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/WhatsAppBaileysApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/WhatsAppBaileys/WhatsAppBaileys.node.js",
+      "dist/nodes/WhatsAppBaileysTrigger/WhatsAppBaileysTrigger.node.js"
+    ]
+  },
+  "dependencies": {
+    "n8n-workflow": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "n8n-core": "*",
+    "typescript": "^5.4.0"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}

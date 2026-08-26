@@ -1,0 +1,8 @@
+node_modules/
+dist/
+bridge/dist/
+bridge/auth_info/
+auth_info/
+.env
+*.log
+.DS_Store
