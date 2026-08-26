@@ -21,12 +21,12 @@
           "options": {
             "caseSensitive": true,
             "leftValue": "",
-            "typeValidation": "strict"
+            "typeValidation": "loose"
           },
           "conditions": [
             {
               "id": "check-is-private",
-              "leftValue": "={{ $json.body.isGroup }}",
+              "leftValue": "={{ Boolean($json.body.isGroup) }}",
               "rightValue": false,
               "operator": {
                 "type": "boolean",
@@ -35,7 +35,7 @@
             },
             {
               "id": "check-not-bot",
-              "leftValue": "={{ $json.body.body }}",
+              "leftValue": "={{ String($json.body.body || '') }}",
               "rightValue": "🤖",
               "operator": {
                 "type": "string",
@@ -44,7 +44,7 @@
             },
             {
               "id": "check-not-empty",
-              "leftValue": "={{ $json.body.body }}",
+              "leftValue": "={{ String($json.body.body || '').trim() }}",
               "rightValue": "",
               "operator": {
                 "type": "string",
@@ -71,15 +71,15 @@
                 "options": {
                   "caseSensitive": false,
                   "leftValue": "",
-                  "typeValidation": "strict"
+                  "typeValidation": "loose"
                 },
                 "conditions": [
                   {
-                    "leftValue": "={{ $json.body.body.trim() }}",
+                    "leftValue": "={{ String($json.body.body || '').trim() }}",
                     "rightValue": "1",
                     "operator": {
                       "type": "string",
-                      "operation": "equals"
+                      "operation": "startsWith"
                     }
                   }
                 ],
@@ -91,15 +91,15 @@
                 "options": {
                   "caseSensitive": false,
                   "leftValue": "",
-                  "typeValidation": "strict"
+                  "typeValidation": "loose"
                 },
                 "conditions": [
                   {
-                    "leftValue": "={{ $json.body.body.trim() }}",
+                    "leftValue": "={{ String($json.body.body || '').trim() }}",
                     "rightValue": "2",
                     "operator": {
                       "type": "string",
-                      "operation": "equals"
+                      "operation": "startsWith"
                     }
                   }
                 ],
@@ -111,15 +111,15 @@
                 "options": {
                   "caseSensitive": false,
                   "leftValue": "",
-                  "typeValidation": "strict"
+                  "typeValidation": "loose"
                 },
                 "conditions": [
                   {
-                    "leftValue": "={{ $json.body.body.trim() }}",
+                    "leftValue": "={{ String($json.body.body || '').trim() }}",
                     "rightValue": "3",
                     "operator": {
                       "type": "string",
-                      "operation": "equals"
+                      "operation": "startsWith"
                     }
                   }
                 ],
@@ -131,15 +131,15 @@
                 "options": {
                   "caseSensitive": false,
                   "leftValue": "",
-                  "typeValidation": "strict"
+                  "typeValidation": "loose"
                 },
                 "conditions": [
                   {
-                    "leftValue": "={{ $json.body.body.trim() }}",
+                    "leftValue": "={{ String($json.body.body || '').trim() }}",
                     "rightValue": "4",
                     "operator": {
                       "type": "string",
-                      "operation": "equals"
+                      "operation": "startsWith"
                     }
                   }
                 ],
@@ -163,7 +163,7 @@
         "url": "http://host.docker.internal:3100/send/text",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ to: $json.body.from, message: '🤖 ¡Hola ' + ($json.body.fromName || 'amigo') + ' (' + $json.body.senderFormatted + ')! 👋\\n\\n¡Espero que estés teniendo un excelente día! ¿En qué más te puedo ayudar hoy? ✨\\n\\n_(Escribe *menu* para volver a ver las opciones)_' }) }}",
+        "jsonBody": "={{ JSON.stringify({ to: $('Mensaje Recibido (Webhook)').first().json.body.from, message: '🤖 ¡Hola ' + ($('Mensaje Recibido (Webhook)').first().json.body.fromName || 'amigo') + ' (' + $('Mensaje Recibido (Webhook)').first().json.body.senderFormatted + ')! 👋\\n\\n¡Espero que estés teniendo un excelente día! ¿En qué más te puedo ayudar hoy? ✨\\n\\n_(Escribe *menu* para volver a ver las opciones)_' }) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -189,7 +189,7 @@
         "url": "http://host.docker.internal:3100/send/text",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ to: $('Mensaje Recibido (Webhook)').item.json.body.from, message: '💵 *Cotización del Dólar Blue en Vivo:*\\n\\n🟢 *Compra:* $' + $json.compra + '\\n🔴 *Venta:* $' + $json.venta + '\\n📅 *Actualizado:* ' + $json.fechaActualizacion + '\\n\\n_(Fuente: DolarApi.com | Escribe *menu* para más opciones)_' }) }}",
+        "jsonBody": "={{ JSON.stringify({ to: $('Mensaje Recibido (Webhook)').first().json.body.from, message: '💵 *Cotización del Dólar Blue en Vivo:*\\n\\n🟢 *Compra:* $' + $json.compra + '\\n🔴 *Venta:* $' + $json.venta + '\\n📅 *Actualizado:* ' + $json.fechaActualizacion + '\\n\\n_(Fuente: DolarApi.com | Escribe *menu* para más opciones)_' }) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -216,7 +216,7 @@
         "url": "http://host.docker.internal:3100/send/text",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ to: $('Mensaje Recibido (Webhook)').item.json.body.from, message: '🤖 ⏳ *Eco diferido (10 segundos):*\\n\\n¡Han pasado exactamente 10 segundos desde tu solicitud! Tu temporizador funcionó correctamente. ⏱️🚀\\n\\n_(Escribe *menu* para más opciones)_' }) }}",
+        "jsonBody": "={{ JSON.stringify({ to: $('Mensaje Recibido (Webhook)').first().json.body.from, message: '🤖 ⏳ *Eco diferido (10 segundos):*\\n\\n¡Han pasado exactamente 10 segundos desde tu solicitud! Tu temporizador funcionó correctamente. ⏱️🚀\\n\\n_(Escribe *menu* para más opciones)_' }) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -231,7 +231,7 @@
         "url": "http://host.docker.internal:3100/send/text",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ to: $json.body.from, message: '📝 *Sistema de Notas / TODO Demo:*\\n\\n✅ [1] Iniciar servidor local de WhatsApp\\n✅ [2] Vincular cuenta con Código QR\\n⏳ [3] Probar el menú de opciones (En curso)\\n📌 [4] Integrar Base de Datos / IA generativa (Pendiente)\\n\\n💡 _Tip: Puedes conectar un nodo de Google Sheets, Notion o PostgreSQL para crear un CRUD 100% persistente desde WhatsApp._\\n\\n_(Escribe *menu* para más opciones)_' }) }}",
+        "jsonBody": "={{ JSON.stringify({ to: $('Mensaje Recibido (Webhook)').first().json.body.from, message: '📝 *Sistema de Notas / TODO Demo:*\\n\\n✅ [1] Iniciar servidor local de WhatsApp\\n✅ [2] Vincular cuenta con Código QR\\n⏳ [3] Probar el menú de opciones (En curso)\\n📌 [4] Integrar Base de Datos / IA generativa (Pendiente)\\n\\n💡 _Tip: Puedes conectar un nodo de Google Sheets, Notion o PostgreSQL para crear un CRUD 100% persistente desde WhatsApp._\\n\\n_(Escribe *menu* para más opciones)_' }) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
@@ -246,7 +246,7 @@
         "url": "http://host.docker.internal:3100/send/text",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ to: $json.body.from, message: '🤖 *Menú Principal de Opciones:*\\n\\n¡Hola ' + ($json.body.fromName || 'amigo') + '! 👋 Bienvenido.\\n\\nElige una de las siguientes opciones respondiendo con el número:\\n\\n1️⃣ *Saludar* - Te envío un saludo cordial y personalizado.\\n2️⃣ *Dólar Blue* - Consulta la cotización del dólar en vivo.\\n3️⃣ *Eco con Retardo (10s)* - Prueba de temporizador con n8n.\\n4️⃣ *Lista de Tareas (TODO)* - Gestor de notas y recordatorios.\\n\\n👉 _Escribe el número *1*, *2*, *3* o *4* para continuar._' }) }}",
+        "jsonBody": "={{ JSON.stringify({ to: $('Mensaje Recibido (Webhook)').first().json.body.from, message: '🤖 *Menú Principal de Opciones:*\\n\\n¡Hola ' + ($('Mensaje Recibido (Webhook)').first().json.body.fromName || 'amigo') + '! 👋 Bienvenido.\\n\\nElige una de las siguientes opciones respondiendo con el número:\\n\\n1️⃣ *Saludar* - Te envío un saludo cordial y personalizado.\\n2️⃣ *Dólar Blue* - Consulta la cotización del dólar en vivo.\\n3️⃣ *Eco con Retardo (10s)* - Prueba de temporizador con n8n.\\n4️⃣ *Lista de Tareas (TODO)* - Gestor de notas y recordatorios.\\n\\n👉 _Escribe el número *1*, *2*, *3* o *4* para continuar._' }) }}",
         "options": {}
       },
       "type": "n8n-nodes-base.httpRequest",
